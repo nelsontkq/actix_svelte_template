@@ -12,9 +12,6 @@ FROM rust:alpine3.15 as builder
 WORKDIR /build
 COPY Cargo.lock Cargo.lock
 COPY Cargo.toml Cargo.toml
-
-COPY migrations migrations
-COPY diesel.toml diesel.toml
 COPY src src
 RUN cargo install --path .
 
