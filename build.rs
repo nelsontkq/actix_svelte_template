@@ -10,6 +10,10 @@ fn main() -> std::io::Result<()> {
     println!("cargo:rerun-if-changed=client/svelte.config.js");
     println!("cargo:rerun-if-changed=.env");
 
+    if !check_program_installed("npm") {
+        painc!("npm is not installed! install it first.");
+    }
+
     let node_modules = std::path::Path::new("client/node_modules");
     if !node_modules.exists() {
         let _exit_status = Command::new("npm")
@@ -38,4 +42,12 @@ fn main() -> std::io::Result<()> {
         )?;
     }
     Ok(())
+}
+
+fn check_program_installed(program: &str) -> bool {
+    let output = Command::new("which")
+        .arg(program)
+        .output()
+        .expect("failed to execute process");
+    output.status.success()
 }
