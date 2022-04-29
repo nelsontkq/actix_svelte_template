@@ -11,7 +11,7 @@ fn main() -> std::io::Result<()> {
     println!("cargo:rerun-if-changed=.env");
 
     if !check_program_installed("npm") {
-        painc!("npm is not installed! install it first.");
+        panic!("npm is not installed! install it first.");
     }
 
     let node_modules = std::path::Path::new("client/node_modules");
