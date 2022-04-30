@@ -25,5 +25,10 @@ diesel migration run
 ### Run
 
 ```bash
+# Debugging locally
 cargo run
+
+# With docker
+docker build -t actix-svelte-template .
+docker run -d -p 8080:8080 actix-svelte-template
 ```

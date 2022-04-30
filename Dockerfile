@@ -34,8 +34,8 @@ COPY --from=builder /usr/src/api-service/db.sqlite3 /app/db.sqlite3
 
 COPY --from=web-builder /usr/src/build /app/static
 
-ENV STATIC_FILE_PATH=/app/static PORT=12121
+ENV STATIC_FILE_PATH=/app/static PORT=8080
 # Replace with your database connection string if not using sqlite
 ENV DATABASE_URL=/app/db.sqlite3
-EXPOSE 12121
+EXPOSE 8080
 CMD ["/app/actix_svelte_template"]
