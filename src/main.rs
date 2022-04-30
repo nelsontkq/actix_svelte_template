@@ -114,6 +114,7 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
+    let port: u16 = std::env::var("PORT").unwrap_or("8080".to_string()).parse().expect("PORT must be a 16 bit int");
     let path = std::env::var("STATIC_FILE_PATH").expect("STATIC_FILE_PATH must be set");
     let static_files = String::from(path.strip_suffix("/").unwrap_or(&path));
     HttpServer::new(move || {
@@ -133,7 +134,7 @@ async fn main() -> std::io::Result<()> {
                     ),
             )
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", port))?
     .run()
     .await
 }

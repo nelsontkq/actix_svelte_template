@@ -1,4 +1,4 @@
-use std::{process::Command, fmt::Error};
+use std::process::Command;
 
 // Dev only build
 fn main() -> std::io::Result<()> {
