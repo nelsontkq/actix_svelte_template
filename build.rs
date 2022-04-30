@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::{process::Command, fmt::Error};
 
 // Dev only build
 fn main() -> std::io::Result<()> {
@@ -44,6 +44,16 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
+#[cfg(windows)]
+fn check_program_installed(program: &str) -> bool {
+    let output = Command::new("where")
+        .arg(program)
+        .output()
+        .expect("failed to execute process");
+    output.status.success()
+}
+
+#[cfg(unix)]
 fn check_program_installed(program: &str) -> bool {
     let output = Command::new("which")
         .arg(program)
