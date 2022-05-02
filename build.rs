@@ -14,21 +14,10 @@ fn main() -> std::io::Result<()> {
         panic!("npm is not installed! install it first.");
     }
 
-    let node_modules = std::path::Path::new("client/node_modules");
-    if !node_modules.exists() {
-        let _exit_status = Command::new("npm")
-            .current_dir("client")
-            .arg("install")
-            .status()?;
+    // check diesel_cli installed
+    if !check_program_installed("diesel") {
+        panic!("diesel_cli is not installed! installing it: 'cargo install diesel_cli --no-default-features --features sqlite'");
     }
-
-    // run npm build
-    let _exit_status = Command::new("npm")
-        .current_dir("client")
-        .arg("run")
-        .arg("build")
-        .status()?;
-
     let env_file = std::path::Path::new(".env");
     if !env_file.exists() {
         let current_dir = std::env::current_dir()?;
@@ -41,6 +30,28 @@ fn main() -> std::io::Result<()> {
             ),
         )?;
     }
+    #[cfg(not(debug_assertions))]
+    {
+        return build_client();
+    }
+    Ok(())
+}
+
+#[cfg(not(debug_assertions))]
+fn build_client() -> std::io::Result<()> {
+    let node_modules = std::path::Path::new("client/node_modules");
+    if !node_modules.exists() {
+        let _exit_status = Command::new("npm")
+            .current_dir("client")
+            .arg("install")
+            .status()?;
+    }
+    // run npm build
+    let _exit_status = Command::new("npm")
+        .current_dir("client")
+        .arg("run")
+        .arg("build")
+        .status()?;
     Ok(())
 }
 

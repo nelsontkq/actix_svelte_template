@@ -1,7 +1,6 @@
 .DS_Store
 .env
 .idea/
-.vscode/
 *.log
 /build
 /target
@@ -15,3 +14,4 @@ client/build
 client/node_modules
 client/package
 db.sqlite3
+nginx.pid
