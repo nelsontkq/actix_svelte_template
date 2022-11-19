@@ -21,15 +21,17 @@ fn main() -> std::io::Result<()> {
     let env_file = std::path::Path::new(".env");
     if !env_file.exists() {
         let current_dir = std::env::current_dir()?;
+        let database_url = current_dir.join("db.sqlite3");
         std::fs::write(
             ".env",
             format!(
-                "DATABASE_URL = {0}\nSTATIC_FILE_PATH = {1}",
-                current_dir.join("db.sqlite3").display(),
+                "DATABASE_URL = {}\nSTATIC_FILE_PATH = {}",
+                database_url.display(),
                 current_dir.join("client/build").display()
             ),
         )?;
     }
+
     #[cfg(not(debug_assertions))]
     {
         return build_client();

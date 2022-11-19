@@ -58,27 +58,27 @@ async fn create_update_or_delete_todo(
     query: web::Query<TodoQuery>,
     pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let mut conn = pool.get().expect("couldn't get db connection from pool");
     let fields = parse_multipart_form(form).await?;
     match &query._method {
         Some(method) => match method.as_str() {
             "PATCH" => {
                 update_todo(
-                    &conn,
+                    &mut conn,
                     &fields.id.expect("ID required"),
                     fields.text,
                     fields.done,
                 );
             }
             "DELETE" => {
-                delete_todo(&conn, &fields.id.expect("ID required"));
+                delete_todo(&mut conn, &fields.id.expect("ID required"));
             }
             _ => panic!("Unsupported method {}", method),
         },
         None => {
-            let conn = pool.get().expect("couldn't get db connection from pool");
+            let mut conn = pool.get().expect("couldn't get db connection from pool");
             let todo = create_todo(
-                &conn,
+                &mut conn,
                 &fields.text.expect("text is required"),
                 fields.done.unwrap_or(false),
             );
@@ -90,17 +90,17 @@ async fn create_update_or_delete_todo(
 
 #[get("/api/todos/{id}")]
 async fn get_todo(path: web::Path<String>, pool: web::Data<DbPool>) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let mut conn = pool.get().expect("couldn't get db connection from pool");
     let id = path.into_inner();
-    web::Json(actix_svelte_template::get_todo(&conn, &id))
+    web::Json(actix_svelte_template::get_todo(&mut conn, &id))
 }
 
 #[get("/api/todos")]
 async fn get_todos(query: web::Query<TodoFields>, pool: web::Data<DbPool>) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let mut conn = pool.get().expect("couldn't get db connection from pool");
     let res = query.0;
     web::Json(actix_svelte_template::get_todos(
-        &conn, res.id, res.text, res.done,
+        &mut conn, res.id, res.text, res.done,
     ))
 }
 
@@ -114,16 +114,21 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
-    let port: u16 = std::env::var("PORT").unwrap_or("8080".to_string()).parse().expect("PORT must be a 16 bit int");
+    let port: u16 = std::env::var("PORT")
+        .unwrap_or("8080".to_string())
+        .parse()
+        .expect("PORT must be a 16 bit int");
     let path = std::env::var("STATIC_FILE_PATH").expect("STATIC_FILE_PATH must be set");
     let static_files = String::from(path.strip_suffix("/").unwrap_or(&path));
     HttpServer::new(move || {
-        App::new()
+        let app = App::new()
             .service(create_update_or_delete_todo)
             .service(get_todo)
             .service(get_todos)
-            .app_data(web::Data::new(pool.clone()))
-            .service(
+            .app_data(web::Data::new(pool.clone()));
+
+        if cfg!(not(debug_assertions)) {
+            return app.service(
                 actix_files::Files::new("/", static_files.clone())
                     .index_file("index.html")
                     .default_handler(
@@ -132,7 +137,9 @@ async fn main() -> std::io::Result<()> {
                         )
                         .expect("index file should exist"),
                     ),
-            )
+            );
+        }
+        app
     })
     .bind(("0.0.0.0", port))?
     .run()

@@ -1,16 +1,18 @@
 [package]
 authors = ["Nelson Truran <nelson@truran.dev>"]
-edition = "2018"
+edition = "2021"
 name = "actix_svelte_template"
 version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dev-dependencies]
+diesel = { version = "*", features = ["sqlite", "r2d2"] }
 
 [dependencies]
-actix-files = "0.6.0"
-actix-web = "4"
-actix-multipart = "*"
-futures-util = "*"
+actix-files = "0.6.2"
+actix-web = "4.2.1"
+actix-multipart = "0.4.0"
+futures-util = "0.3.25"
 dotenv = "0.15.0"
 serde = { version = "*", features = ["derive"] }
 uuid = { version = "*", features = ["v4", "fast-rng"] }

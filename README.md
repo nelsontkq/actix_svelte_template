@@ -11,6 +11,8 @@ Here's an actix-web template that uses SvelteKit built and served as static file
 
 ## Setup
 
+We use Vite's proxy in the dev environment and serve svelte as static files in production.
+
 ### Dev Requirements
 
 - [ ] cargo: `curl https://sh.rustup.rs -sSf | sh`
@@ -27,19 +29,12 @@ diesel migration run
 
 ## Debug
 
-We use nginx as a reverse proxy when developing locally to allow cross-origin requests.
-This isn't required in production as the SvelteKit frontend is compiled to static files.
-
 ### Script
 ```bash
-./debug.sh
+npm run dev
 ```
 
-This will create a nginx proxy which will forward /api to the actix web project, and anything else to the SvelteKit frontend.
-
-### VS Code
-
-I've added a working `launch.json` that will setup the nginx proxy, and debug both front and backend.
+All traffic to localhost:3000/api/* will be forwarded to the actix web project, and anything else to the SvelteKit frontend.
 
 ### Build
 
